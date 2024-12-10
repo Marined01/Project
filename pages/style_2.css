@@ -1,0 +1,38 @@
+body{
+
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    h1 {
+        text-align: center; /* Вирівнює текст по горизонталі */
+    }
+    
+    form { 
+        display: flex; 
+        flex-direction: column; 
+        max-width: 300px; 
+        margin: auto;
+    
+    }
+    
+    input { 
+        margin-bottom: 10px; 
+        padding: 10px; 
+        font-size: 16px; 
+        border: 1px solid #ccc; 
+        border-radius: 5px; 
+    } 
+    
+    button { 
+        padding: 10px; 
+        font-size: 16px; 
+        background-color: #4caf50; 
+        color: white; 
+        border: none; 
+        border-radius: 5px; 
+        cursor: pointer; 
+    }
+    
+    button:hover { 
+        background-color: #45a049;
+    }  
+}

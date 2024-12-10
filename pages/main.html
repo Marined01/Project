@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factorial Calculator</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script defer src="./script.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    
+</head>
+<body>
+    <h1 id="head">Factorial Calculator</h1>
+    <form id="factorial-form">
+        <input type="number" id="number" placeholder="Enter a number" required />
+        <button type="submit">Calculate</button>
+    </form>
+    <div id="task-list"></div>
+    <div id="statistics">
+        <h2>Task Statistics</h2>
+        <p>Completed: <span id="stat-completed">0</span></p>
+        <p>In Progress: <span id="stat-in-progress">0</span></p>
+        <p>Queued: <span id="stat-queued">0</span></p>
+        <p>Total: <span id="stat-total">0</span></p>
+    </div>
+</body>
+</html>
