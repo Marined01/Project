@@ -7,6 +7,9 @@ const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
 const session = require('express-session'); 
+require('dotenv').config();  
+
+const port = process.env.PORT || 3000;
 
 const app = express();
 app.use(express.json());
@@ -43,9 +46,6 @@ const updateStatistics = async () => {
 };
 
 
-app.get('/', (req, res) => {
-    res.redirect('/registration.html'); 
-});
 
 app.get('/registration.html', (req, res) => {
     res.sendFile('D:/University/WEB/Project/registration.html');
@@ -229,7 +229,10 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(3000, async () => {
+
+server.listen(port, async () => {
     await initializeTaskNumber();
-    console.log('Server running on http://localhost:3000');
+    console.log(`Server running on http://localhost:${port}`);
 });
+
+

@@ -7,11 +7,18 @@ document.getElementById('registration-form').addEventListener("submit", async (e
     const messageDiv = document.getElementById('message'); 
 
     try {
-        const response = await fetch('/registration', {
+        const response = await fetch('http://localhost:8000/registration', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, username, password })
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: 'user@example.com',
+                username: 'exampleUser',
+                password: 'securePassword'
+            })
         });
+        
 
         const result = await response.json();
 
