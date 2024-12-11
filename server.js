@@ -52,18 +52,18 @@ app.get('/', (req, res) => {
 //});
 
 app.get('/registration.html', (req, res) => {
-    res.sendFile('D:/University/WEB/Project/pages/registration.html');
+    res.sendFile('D:/University/WEB/Project/registration.html');
 });
 
 app.get('/login', (req, res) => {
-    res.sendFile('D:/University/WEB/Project/pages/pages/login.html');
+    res.sendFile('D:/University/WEB/Project/login.html');
 });
 
 app.get('/main.html', (req, res) => {
     if (!req.session.user) {
-        return res.redirect('D:/University/WEB/Project/pages/pages/login.html');
+        return res.redirect('D:/University/WEB/Project/login.html');
     }
-    res.sendFile('D:/University/WEB/Project/pages/pages/main.html');
+    res.sendFile('D:/University/WEB/Project/main.html');
 });
 
 // Ініціалізація номера завдання та статистики при запуску сервера
