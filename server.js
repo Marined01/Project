@@ -47,16 +47,12 @@ app.get('/', (req, res) => {
     res.redirect('/registration.html'); 
 });
 
-//app.get('/login.html', (req, res) => {
-//    res.redirect('/login');
-//});
-
 app.get('/registration.html', (req, res) => {
     res.sendFile('D:/University/WEB/Project/registration.html');
 });
 
 app.get('/login', (req, res) => {
-    res.sendFile('D:/University/WEB/Project/login.html');
+    res.sendFile('D:/University/WEB/Project/public/login.html');
 });
 
 app.get('/main.html', (req, res) => {
