@@ -6,7 +6,9 @@ const User = require('./models/user');
 const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
-const session = require('express-session'); 
+const session = require('express-session');
+const process = require('process');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
@@ -15,7 +17,16 @@ const io = socketIo(server);
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'pages'), {
+    setHeaders: (res, filePath) => {
+        if (path.extname(filePath) === '.css') {
+            res.setHeader('Content-Type', 'text/css');
+        }
+        if (path.extname(filePath) === '.js') {
+            res.setHeader('Content-Type', 'application/javascript');
+        }
+    }
+}));
 app.use(session({
     secret: 'your_secret_key', 
     resave: false, 
@@ -45,25 +56,6 @@ const updateStatistics = async () => {
 
 app.get('/', (req, res) => {
     res.redirect('/registration.html'); 
-});
-
-//app.get('/login.html', (req, res) => {
-//    res.redirect('/login');
-//});
-
-app.get('/registration.html', (req, res) => {
-    res.sendFile('D:/University/WEB/Project/pages/registration.html');
-});
-
-app.get('/login', (req, res) => {
-    res.sendFile('D:/University/WEB/Project/pages/pages/login.html');
-});
-
-app.get('/main.html', (req, res) => {
-    if (!req.session.user) {
-        return res.redirect('D:/University/WEB/Project/pages/pages/login.html');
-    }
-    res.sendFile('D:/University/WEB/Project/pages/pages/main.html');
 });
 
 // Ініціалізація номера завдання та статистики при запуску сервера
@@ -170,9 +162,8 @@ app.get('/tasks/:user', async (req, res) => {
 });
 
 
-app.post('/registration', async (req, res) => {
+app.post('/register', async (req, res) => {
     const { email, username, password } = req.body;
-
     try {
         const existingUser = await User.findOne({ username });
         if (existingUser) {
