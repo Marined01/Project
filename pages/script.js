@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const response = await fetch('/tasks'); // No user ID needed in the URL
 
         if (!response.ok) {
-            throw new Error(`Error fetching tasks: ${response.statusText}`);
+            window.location.href = 'login.html';
         }
 
         const tasks = await response.json(); // Parse the JSON response
@@ -59,9 +59,21 @@ function addTaskToUI(task) {
         <div class="progress-bar">
             <div id="progress-${task._id}" class="progress"></div>
         </div>
-        <p>Result: <span id="result-${task._id}">N/A</span></p>
+        <p>Result: <span id="result-${task._id}">${task.result || 'N/A'}</span></p>
     `;
-    taskList.appendChild(taskItem);
+    taskList.prepend(taskItem);
+    updateTask(task);
+}
+
+function updateTask(task) {
+    const taskElement = document.getElementById(`task-${task._id}`);
+    if (taskElement) {
+        taskElement.querySelector(`#status-${task._id}`).textContent = task.status;
+        taskElement.querySelector(`#progress-${task._id}`).style.width = `${task.progress}%`;
+        if (task.status === 'completed') {
+            taskElement.querySelector(`#result-${task._id}`).textContent = task.result;
+        }
+    }
 }
 
 // Оновлення статистики в інтерфейсі
@@ -72,27 +84,11 @@ function updateStatistics(stats) {
     document.getElementById('stat-total').textContent = stats.total;
 }
 
-// Оновлення статистики при завантаженні
-(async function fetchStatistics() {
-    const response = await fetch('/statistics');
-    const stats = await response.json();
-    updateStatistics(stats);
-})();
-
 // Оновлення статистики в реальному часі
 socket.on('updateStatistics', (stats) => {
     updateStatistics(stats);
 });
 
 // Оновлення прогресу в реальному часі
-socket.on('taskUpdate', (task) => {
-    const taskElement = document.getElementById(`task-${task._id}`);
-    if (taskElement) {
-        taskElement.querySelector(`#status-${task._id}`).textContent = task.status;
-        taskElement.querySelector(`#progress-${task._id}`).style.width = `${task.progress}%`;
-        if (task.status === 'completed') {
-            taskElement.querySelector(`#result-${task._id}`).textContent = task.result;
-        }
-    }
-});
+socket.on('taskUpdate', updateTask);
 

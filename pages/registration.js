@@ -19,21 +19,7 @@ document.getElementById('registration-form').addEventListener("submit", async (e
             messageDiv.textContent = result.message || 'Registration successful!';
             messageDiv.style.color = 'green';
             window.location = "login.html"
-
-            // const loginPageResponse = await fetch('/login', {
-            //     method: 'GET',
-            //     headers: { 'Content-Type': 'text/html' }
-            // });
-            //
-            // if (loginPageResponse.ok) {
-            //     const loginPageHtml = await loginPageResponse.text();
-            //     document.body.innerHTML = loginPageHtml; // Замінюємо поточний контент сторінки
-            // } else {
-            //     messageDiv.textContent = 'Failed to load login page. Please try again.';
-            //     messageDiv.style.color = 'red';
-            // }
         } else {
-            
             messageDiv.textContent = result.error || 'Registration failed. Please try again.';
             messageDiv.style.color = 'red';
         }

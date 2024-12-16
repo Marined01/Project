@@ -172,7 +172,7 @@ app.post('/tasks', authMiddleware, async (req, res) => {
 
 app.get('/tasks', authMiddleware, async (req, res) => {
     const { id } = req.session.user; // Extract user ID from the session
-    const tasks = await Task.find({ user: id }).sort({ createdAt: -1 });
+    const tasks = await Task.find({ user: id }).sort({ createdAt: 1 });
     res.json(tasks);
     updateStatistics();
 });
