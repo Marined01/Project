@@ -1,14 +1,13 @@
 const express = require('express');
-const mongoose = require('./config/db'); 
-const Task = require('./models/task'); 
-const TaskNumber = require('./models/taskNumber'); 
-const User = require('./models/user'); 
 const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
 const session = require('express-session');
 const process = require('process');
 const path = require('path');
+
+const Task = require('./models/task');
+const User = require('./models/user');
 
 const app = express();
 app.use(express.json());
@@ -67,18 +66,6 @@ app.get('/', (req, res) => {
     res.redirect('/login.html');
 });
 
-// Ініціалізація номера завдання та статистики при запуску сервера
-const initializeTaskNumber = async () => {
-    let taskNumberDoc = await TaskNumber.findOne();
-    if (!taskNumberDoc) {
-        taskNumberDoc = new TaskNumber();
-    }
-    taskNumberDoc.currentNumber = 1; 
-    await taskNumberDoc.save();
-
-    await Task.deleteMany({}); 
-    updateStatistics();
-};
 
 const runTask = async (task) => {
     runningTasks++;
@@ -140,21 +127,11 @@ app.post('/tasks', authMiddleware, async (req, res) => {
     if (number > 10000) return res.status(400).json({ error: 'Число занадто велике!' });
 
     try {
-        // Отримуємо поточний номер завдання
-        let taskNumberDoc = await TaskNumber.findOne();
-
-        // Отримуємо поточний порядковий номер завдання
-        const taskNumber = taskNumberDoc.currentNumber;
-
-        // Збільшуємо номер для наступного завдання
-        taskNumberDoc.currentNumber += 1;
-        await taskNumberDoc.save(); // Зберігаємо оновлений номер в базі
 
         // Створюємо нове завдання
         const task = await Task.create({
             user: user.id,
             number,
-            taskNumber,
             status: "pending",
             progress: 0
         });
@@ -177,14 +154,13 @@ app.get('/tasks', authMiddleware, async (req, res) => {
     updateStatistics();
 });
 
-app.post('/tasks/:taskId/startTask', authMiddleware, async (req, res) => {
+app.post('/tasks/:taskId/cancelTask', authMiddleware, async (req, res) => {
     const { taskId } = req.params;
     const task = await Task.findById(taskId);
     if (task) {
-        task.status = "queued";
-        await task.save();
-        io.emit('taskUpdate', task);
-        updateStatistics();
+        // ??
+    } else {
+        res.status(404).json({ error: 'Task not found' });
     }
     return res.json(task)
 });
@@ -226,7 +202,6 @@ app.post('/login', async (req, res) => {
 // WebSocket
 io.on('connection', (socket) => {
     updateStatistics();
-
     socket.on('disconnect', () => {
     });
 });
@@ -234,6 +209,5 @@ io.on('connection', (socket) => {
 const port = process.env.PORT || 3000; // Use the PORT environment variable or default to 3000
 
 server.listen(port, async () => {
-    await initializeTaskNumber();
     console.log(`Server running on http://localhost:${port}`);
 });

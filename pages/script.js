@@ -39,11 +39,6 @@ form.addEventListener('submit', async (e) => {
     });
 
     const task = await create_response.json();
-    const start_response = await fetch(`/tasks/${task._id}/startTask`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user: 'test_user', number })
-    });
     addTaskToUI(task);
 });
 
@@ -53,7 +48,7 @@ function addTaskToUI(task) {
     taskItem.className = 'task-item';
     taskItem.id = `task-${task._id}`;
     taskItem.innerHTML = `
-        <h3>Task #${task.taskNumber}</h3> <!-- Використовуємо taskNumber -->
+        <h3>Task #${task._id.slice(-6, -1)}</h3>
         <p>Number: ${task.number}</p>
         <p>Status: <span id="status-${task._id}">${task.status}</span></p>
         <div class="progress-bar">
