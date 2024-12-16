@@ -55,7 +55,7 @@ const updateStatistics = async () => {
 
 
 app.get('/', (req, res) => {
-    res.redirect('/registration.html'); 
+    res.redirect('/login.html');
 });
 
 // Ініціалізація номера завдання та статистики при запуску сервера
@@ -224,7 +224,9 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(3000, async () => {
+const port = process.env.PORT || 3000; // Use the PORT environment variable or default to 3000
+
+server.listen(port, async () => {
     await initializeTaskNumber();
-    console.log('Server running on http://localhost:3000');
+    console.log(`Server running on http://localhost:${port}`);
 });
