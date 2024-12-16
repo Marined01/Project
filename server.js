@@ -28,10 +28,19 @@ app.use(express.static(path.join(__dirname, 'pages'), {
     }
 }));
 app.use(session({
-    secret: 'your_secret_key', 
-    resave: false, 
-    saveUninitialized: true
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { httpOnly: true, maxAge: 3600000 } // 1 hour
 }));
+
+const authMiddleware = async (req, res, next) => {
+    const user = req.session.user;
+    if (!user) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    next();
+};
 
 let runningTasks = 0;
 const maxRunningTasks = 5;
@@ -124,8 +133,9 @@ const processQueue = async () => {
 };
 
 // API endpoints
-app.post('/tasks', async (req, res) => {
-    const { user, number } = req.body;
+app.post('/tasks', authMiddleware, async (req, res) => {
+    const { number } = req.body;
+    const user = req.session.user;
 
     if (number > 10000) return res.status(400).json({ error: 'Число занадто велике!' });
 
@@ -141,7 +151,13 @@ app.post('/tasks', async (req, res) => {
         await taskNumberDoc.save(); // Зберігаємо оновлений номер в базі
 
         // Створюємо нове завдання
-        const task = await Task.create({ user, number, taskNumber, status: "pending", progress: 0 });
+        const task = await Task.create({
+            user: user.id,
+            number,
+            taskNumber,
+            status: "pending",
+            progress: 0
+        });
         res.json(task);
 
         // Додавання завдання до черги
@@ -154,11 +170,23 @@ app.post('/tasks', async (req, res) => {
     }
 });
 
-app.get('/tasks/:user', async (req, res) => {
-    const { user } = req.params;
-    const tasks = await Task.find({ user }).sort({ createdAt: -1 });
+app.get('/tasks', authMiddleware, async (req, res) => {
+    const { id } = req.session.user; // Extract user ID from the session
+    const tasks = await Task.find({ user: id }).sort({ createdAt: -1 });
     res.json(tasks);
     updateStatistics();
+});
+
+app.post('/tasks/:taskId/startTask', authMiddleware, async (req, res) => {
+    const { taskId } = req.params;
+    const task = await Task.findById(taskId);
+    if (task) {
+        task.status = "queued";
+        await task.save();
+        io.emit('taskUpdate', task);
+        updateStatistics();
+    }
+    return res.json(task)
 });
 
 
@@ -188,39 +216,18 @@ app.post('/login', async (req, res) => {
     if (!user || !await user.comparePassword(password)) {
         return res.status(401).send('Invalid credentials');
     }
-
-    req.session.user = user; 
-    res.send('Login successful');
+    req.session.user = {
+        id: user._id,
+        username: user.username
+    };
+    res.json({message: 'Login successful'});
 });
 
 // WebSocket
 io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
     updateStatistics();
 
-    socket.on('startTask', async (taskId) => {
-        const task = await Task.findById(taskId);
-        if (task) {
-            task.status = "queued";
-            await task.save();
-            io.emit('taskUpdate', task);
-            updateStatistics();
-        }
-    });
-
-    socket.on('cancelTask', async (taskId) => {
-        const task = await Task.findById(taskId);
-        if (task && task.status === "in-progress") {
-            task.status = "cancelled";
-            task.progress = 0;
-            await task.save();
-            io.emit('taskUpdate', task);
-            updateStatistics();
-        }
-    });
-
     socket.on('disconnect', () => {
-        console.log('User disconnected:', socket.id);
     });
 });
 
