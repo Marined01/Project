@@ -1,4 +1,4 @@
-const socket = io(); 
+// const socket = io();
 const form = document.getElementById('factorial-form'); 
 const taskList = document.getElementById('task-list');
 
@@ -8,7 +8,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const response = await fetch('/tasks'); // No user ID needed in the URL
 
         if (!response.ok) {
-            window.location.href = 'login.html';
+            // window.location.href = 'login.html';
+            alert('login failed')
         }
 
         const tasks = await response.json(); // Parse the JSON response
@@ -79,11 +80,11 @@ function updateStatistics(stats) {
     document.getElementById('stat-total').textContent = stats.total;
 }
 
-// Оновлення статистики в реальному часі
-socket.on('updateStatistics', (stats) => {
-    updateStatistics(stats);
-});
-
-// Оновлення прогресу в реальному часі
-socket.on('taskUpdate', updateTask);
+// // Оновлення статистики в реальному часі
+// socket.on('updateStatistics', (stats) => {
+//     updateStatistics(stats);
+// });
+//
+// // Оновлення прогресу в реальному часі
+// socket.on('taskUpdate', updateTask);
 
