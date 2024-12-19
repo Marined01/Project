@@ -187,6 +187,10 @@ app.post('/login', async (req, res) => {
     res.json({ message: 'Login successful' });
 });
 
+app.get("/", async (req, res) => {
+    res.sendFile(path.join(__dirname, "pages", "login.html"));
+});
+
 app.post('/logout', (req, res) => {
     // Clear the JWT cookie
     res.clearCookie('jwt');
