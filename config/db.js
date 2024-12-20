@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // URI до бд 
-const MONGO_URI = 'mongodb://127.0.0.1:27017/mydatabase'; 
+    const MONGO_URI = 'mongodb://root:root@localhost:27117/mydatabase?authSource=admin';
 
 mongoose.connect(MONGO_URI, {
     useNewUrlParser: true,
