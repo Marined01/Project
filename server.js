@@ -14,6 +14,9 @@ const db = require('./config/db');
 // JWT Configuration
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const JWT_EXPIRATION = '1h';
+const MAX_SIZE = 10000;
+const MAX_TASKS_PER_USER = 3;
+const MAX_QUEUE_SIZE = 5;
 
 const app = express();
 const server = http.createServer(app);
@@ -191,8 +194,23 @@ app.post('/tasks', authMiddleware, async (req, res) => {
     const { number } = req.body;
     const user = req.user;
 
-    if (number > 10000) return res.status(400).json({ error: 'Число занадто велике!' });
-
+    if (number > MAX_SIZE) {
+        return res.status(400).json({ error: 'Number is too big' });
+    }
+    let tasks_num = await Task.countDocuments(
+        {user: user.id, $or: [
+                { status: 'pending' },
+                { status: 'in-progress' }
+            ]
+        }
+    );
+    console.log(user.username, tasks_num);
+    if (tasks_num >= MAX_TASKS_PER_USER) {
+        return res.status(400).json({error: 'Max task number reached'});
+    }
+    if (taskQueue.length >= MAX_QUEUE_SIZE + 1) {
+        return res.status(400).json({error: 'Max tasks number in queue reached'})
+    }
     try {
         const task = await Task.create({
             user: user.id,

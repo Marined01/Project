@@ -45,8 +45,13 @@ form.addEventListener('submit', async (e) => {
         body: JSON.stringify({ number })
     });
 
-    const task = await create_response.json();
-    addTaskToUI(task);
+    if (create_response.status == 200) {
+        const task = await create_response.json();
+        addTaskToUI(task);
+    } else {
+        const error = await create_response.json();
+        alert(error.error)
+    }
 });
 
 // Додавання задачі в інтерфейс
