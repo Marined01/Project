@@ -4,17 +4,22 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start-1": "cross-env PORT=8001 node server.js",
+    "start-2": "cross-env PORT=8002 node server.js",
+    "start-3": "cross-env PORT=8003 node server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "express-session": "^1.18.1",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.2",
     "socket.io": "^4.8.1"
   }
