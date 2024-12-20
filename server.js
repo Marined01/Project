@@ -17,7 +17,13 @@ const JWT_EXPIRATION = '1h';
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+
+const io = socketIo(server, {
+    cors: {
+        origin: "http://localhost:8010", // Allow requests from your client origin
+        methods: ["GET", "POST"], // Allowed HTTP methods
+    }
+});
 
 // Middleware
 app.use(cors({
@@ -70,27 +76,12 @@ let runningTasks = 0;
 const maxRunningTasks = 5;
 const taskQueue = [];
 
-const updateStatistics = async () => {
-    const completedCount = await Task.countDocuments({ status: "completed" });
-    const inProgressCount = await Task.countDocuments({ status: "in-progress" });
-    const queuedCount = await Task.countDocuments({ status: "queued" });
-    const totalCount = await Task.countDocuments({});
 
-    const statistics = {
-        completed: completedCount,
-        inProgress: inProgressCount,
-        queued: queuedCount,
-        total: totalCount
-    };
-
-    io.emit('updateStatistics', statistics);
-};
 const runTask = async (task) => {
     runningTasks++;
     task.status = "in-progress";
     await task.save();
     io.emit('taskUpdate', task);
-    updateStatistics();
 
     // Обчислення факторіала
     let result = 1;
@@ -113,13 +104,11 @@ const runTask = async (task) => {
         task.progress = 100;
         await task.save();
         io.emit('taskUpdate', task);
-        updateStatistics();
     } catch (error) {
         task.status = "failed";
         task.progress = 0;
         await task.save();
         io.emit('taskUpdate', task);
-        updateStatistics();
     }
 
     runningTasks--;
@@ -133,7 +122,6 @@ const processQueue = async () => {
         nextTask.status = "queued";
         await nextTask.save();
         runTask(nextTask);
-        updateStatistics();
     }
 };
 // Authentication Routes
@@ -199,6 +187,7 @@ app.post('/logout', (req, res) => {
 
 // Modify existing routes to use req.user instead of req.session.user
 app.post('/tasks', authMiddleware, async (req, res) => {
+    console.log("Received task")
     const { number } = req.body;
     const user = req.user;
 
@@ -215,7 +204,6 @@ app.post('/tasks', authMiddleware, async (req, res) => {
 
         taskQueue.push(task);
         processQueue();
-        updateStatistics();
     } catch (err) {
         console.error('Error while creating task:', err);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -226,14 +214,6 @@ app.get('/tasks', authMiddleware, async (req, res) => {
     const { id } = req.user;
     const tasks = await Task.find({ user: id }).sort({ createdAt: 1 });
     res.json(tasks);
-    updateStatistics();
-});
-
-// WebSocket
-io.on('connection', (socket) => {
-    updateStatistics();
-    socket.on('disconnect', () => {
-    });
 });
 
 const port = process.env.PORT || 3000;

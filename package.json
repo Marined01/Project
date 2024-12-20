@@ -4,8 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
     "start-1": "cross-env PORT=8001 node server.js",
     "start-2": "cross-env PORT=8002 node server.js",
     "start-3": "cross-env PORT=8003 node server.js"

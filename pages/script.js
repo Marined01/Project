@@ -1,6 +1,12 @@
-// const socket = io();
-const form = document.getElementById('factorial-form'); 
+const form = document.getElementById('factorial-form');
 const taskList = document.getElementById('task-list');
+
+
+const sockets = [
+    io('http://localhost:8001'),
+    io('http://localhost:8002'),
+    io('http://localhost:8003'),
+]
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -80,11 +86,6 @@ function updateStatistics(stats) {
     document.getElementById('stat-total').textContent = stats.total;
 }
 
-// // Оновлення статистики в реальному часі
-// socket.on('updateStatistics', (stats) => {
-//     updateStatistics(stats);
-// });
-//
-// // Оновлення прогресу в реальному часі
-// socket.on('taskUpdate', updateTask);
+// Оновлення прогресу в реальному часі
+sockets.forEach(s => s.on('taskUpdate', updateTask));
 
